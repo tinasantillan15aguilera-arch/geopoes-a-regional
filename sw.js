@@ -1,8 +1,8 @@
 /* ==========================================
-   SERVICE WORKER (sw.js) - Recorrido Geopoético
+   SERVICE WORKER (sw.js) - Recorrido Geopoético (Versión 2)
    ========================================== */
 
-const VERSION = "v2";
+const VERSION = "v2"; // <--- Actualizado a versión 2 como pediste
 const ARCHIVOS = [
     "./",
     "./index.html",
@@ -13,7 +13,7 @@ const ARCHIVOS = [
     "./icono-512.png"
 ];
 
-// 1. EVENTO INSTALL: Guarda una copia de todos los archivos en la caché la primera vez
+// 1. EVENTO INSTALL: Guarda los archivos de la nueva versión
 self.addEventListener("install", (evento) => {
     evento.waitUntil(
         caches.open(VERSION).then((cache) => {
@@ -23,7 +23,7 @@ self.addEventListener("install", (evento) => {
     self.skipWaiting();
 });
 
-// 2. EVENTO ACTIVATE: Borra las cachés de versiones anteriores cuando actualizás la app
+// 2. EVENTO ACTIVATE: Borra la caché vieja (la versión anterior)
 self.addEventListener("activate", (evento) => {
     evento.waitUntil(
         caches.keys().then((keys) => {
@@ -39,14 +39,14 @@ self.addEventListener("activate", (evento) => {
     self.clients.claim();
 });
 
-// 3. EVENTO FETCH: Responde primero con la copia guardada en caché y, si no está, busca en la red
+// 3. EVENTO FETCH: Responde con la caché o busca en la red
 self.addEventListener("fetch", (evento) => {
     evento.respondWith(
         caches.match(evento.request).then((respuestaCaché) => {
             if (respuestaCaché) {
-                return respuestaCaché; // Entrega la copia guardada (funciona offline)
+                return respuestaCaché;
             }
-            return fetch(evento.request); // Si no está en caché, va a la red
+            return fetch(evento.request);
         })
     );
 });

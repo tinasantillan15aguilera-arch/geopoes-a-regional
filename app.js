@@ -82,10 +82,6 @@ function normalizarTexto(texto) {
 // 4. FUNCIONES DE RENDERIZADO (MOSTRAR EN PANTALLA)
 // ==========================================
 
-/**
- * Dibuja las tarjetas de registros en el contenedor HTML. 
- * Muestra la imagen, la categoría y un enlace funcional de descarga para el documento adjunto.
- */
 function mostrarMitos(listaAMostrar = mitos) {
     const contenedorTarjetas = document.getElementById("contenedor-tarjetas");
     contenedorTarjetas.innerHTML = "";
@@ -103,7 +99,6 @@ function mostrarMitos(listaAMostrar = mitos) {
         const tarjeta = document.createElement("div");
         tarjeta.classList.add("tarjeta-mito");
 
-        // Renderizado de la imagen si está presente
         let htmlImagen = "";
         if (mito.imagen && mito.imagen.trim() !== "") {
             htmlImagen = `
@@ -113,7 +108,6 @@ function mostrarMitos(listaAMostrar = mitos) {
             `;
         }
 
-        // Renderizado del enlace funcional de descarga para el documento adjunto
         let htmlDocumento = "";
         if (mito.documentoNombre && mito.documentoUrl) {
             htmlDocumento = `
@@ -156,7 +150,7 @@ function mostrarMitos(listaAMostrar = mitos) {
 }
 
 // ==========================================
-// 5. FUNCIONES AUXILIARES DE VALIDACIÓN VISUAL Y AVISO OFFLINE (Paso 7)
+// 5. FUNCIONES AUXILIARES Y AVISO DE CONEXIÓN (Paso 7)
 // ==========================================
 
 function mostrarError(idElemento, mensaje) {
@@ -181,7 +175,6 @@ function limpiarErrores() {
     });
 }
 
-// --- CREACIÓN E INYECCIÓN DEL AVISO DISCRETO DE CONEXIÓN (Paso 7) ---
 const avisoConexion = document.createElement("div");
 avisoConexion.id = "aviso-conexion";
 avisoConexion.style.backgroundColor = "#D4AC0D";
@@ -190,10 +183,9 @@ avisoConexion.style.padding = "0.5rem 1rem";
 avisoConexion.style.textAlign = "center";
 avisoConexion.style.fontSize = "0.9rem";
 avisoConexion.style.fontWeight = "bold";
-avisoConexion.style.display = "none"; // Oculto por defecto
+avisoConexion.style.display = "none";
 avisoConexion.textContent = "Sin conexión: tus datos se siguen guardando en este celular";
 
-// Insertar el aviso arriba de todo en el body
 document.body.insertBefore(avisoConexion, document.body.firstChild);
 
 function actualizarEstadoConexión() {
@@ -206,7 +198,6 @@ function actualizarEstadoConexión() {
 
 window.addEventListener("online", actualizarEstadoConexión);
 window.addEventListener("offline", actualizarEstadoConexión);
-// Comprobar estado inicial al cargar
 actualizarEstadoConexión();
 
 
@@ -222,13 +213,11 @@ const botonExportar = document.getElementById("boton-exportar");
 const botonImportar = document.getElementById("boton-importar");
 const inputArchivoImportar = document.getElementById("input-archivo-importar");
 
-// Referencias a los inputs de archivo y sus nuevos botones de quitar
 const inputImagen = document.getElementById("input-imagen");
 const btnQuitarImagen = document.getElementById("btn-quitar-imagen");
 const inputDocumento = document.getElementById("input-documento");
 const btnQuitarDocumento = document.getElementById("btn-quitar-documento");
 
-// Mostrar u ocultar botón de quitar imagen según si hay archivo seleccionado
 inputImagen.addEventListener("change", function() {
     if (inputImagen.files.length > 0) {
         btnQuitarImagen.style.display = "block";
@@ -238,11 +227,10 @@ inputImagen.addEventListener("change", function() {
 });
 
 btnQuitarImagen.addEventListener("click", function() {
-    inputImagen.value = ""; // Limpia el input file
+    inputImagen.value = "";
     btnQuitarImagen.style.display = "none";
 });
 
-// Mostrar u ocultar botón de quitar documento según si hay archivo seleccionado
 inputDocumento.addEventListener("change", function() {
     if (inputDocumento.files.length > 0) {
         btnQuitarDocumento.style.display = "block";
@@ -252,7 +240,7 @@ inputDocumento.addEventListener("change", function() {
 });
 
 btnQuitarDocumento.addEventListener("click", function() {
-    inputDocumento.value = ""; // Limpia el input file
+    inputDocumento.value = "";
     btnQuitarDocumento.style.display = "none";
 });
 
@@ -280,13 +268,12 @@ function filtrarYMostrarMitos() {
 buscadorGeneral.addEventListener("input", filtrarYMostrarMitos);
 filtroCategoria.addEventListener("change", filtrarYMostrarMitos);
 
-// --- EXPORTAR E IMPORTAR DATOS CON SOPORTE DE NAVIGATOR.SHARE (Paso 7) ---
+// --- EXPORTAR E IMPORTAR CON NAVIGATOR.SHARE ---
 async function exportarDatos() {
     const jsonLegible = JSON.stringify(mitos, null, 2);
     const blob = new Blob([jsonLegible], { type: "application/json" });
     const archivoJson = new File([blob], "recorrido-geopoetico.json", { type: "application/json" });
 
-    // Intentar usar navigator.share si está disponible en el celular (Paso 7)
     if (navigator.canShare && navigator.canShare({ files: [archivoJson] })) {
         try {
             await navigator.share({
@@ -294,17 +281,16 @@ async function exportarDatos() {
                 text: "Comparto los datos actuales de la aplicación.",
                 files: [archivoJson]
             });
-            return; // Salir si se compartió exitosamente
+            return;
         } catch (error) {
             if (error.name !== "AbortError") {
-                console.log("Error al compartir, intentando descarga convencional:", error);
+                console.log("Error al compartir:", error);
             } else {
-                return; // Si el usuario canceló el menú de compartir, no hacemos nada más
+                return;
             }
         }
     }
 
-    // Método de respaldo clásico (descarga directa)
     const urlTemporal = URL.createObjectURL(blob);
     const enlaceDescarga = document.createElement("a");
     enlaceDescarga.href = urlTemporal;
@@ -357,7 +343,7 @@ inputArchivoImportar.addEventListener("change", function(evento) {
     lector.readAsText(archivoSeleccionado);
 });
 
-// Envío del formulario procesando imagen y documento con FileReader para permitir descarga real
+// Envío del formulario
 formularioRelato.addEventListener("submit", function(evento) {
     evento.preventDefault();
     limpiarErrores();
@@ -402,29 +388,21 @@ formularioRelato.addEventListener("submit", function(evento) {
     }
 
     if (textoIngresado.length < 20) {
-        mostrarError("textarea-relato", "El texto debe tener al menos 20 caracteres (actualmente tiene " + textoIngresado.length + ").");
+        mostrarError("textarea-relato", "El texto debe tener al menos 20 caracteres.");
         hayErrores = true;
     }
 
-    if (hayErrores) {
-        return;
-    }
+    if (hayErrores) return;
 
-    /**
-     * Funktion que procesa el guardado final una vez leídos los archivos que haya adjuntado el usuario.
-     */
     function guardarRegistroFinal(imagenBase64, docNombre, docUrl) {
         let imagenFinal = imagenBase64;
         let docNombreFinal = docNombre;
         let docUrlFinal = docUrl;
 
-        // Si estamos editando y no se adjuntó un archivo nuevo, conservamos el anterior
         if (idEditando !== null) {
             const mitoAnterior = mitos.find(m => m.id === idEditando);
             if (mitoAnterior) {
-                if (!imagenFinal && archivoImagen === undefined) {
-                    imagenFinal = mitoAnterior.imagen;
-                }
+                if (!imagenFinal && archivoImagen === undefined) imagenFinal = mitoAnterior.imagen;
                 if (!docNombreFinal && archivoDocumento === undefined) {
                     docNombreFinal = mitoAnterior.documentoNombre;
                     docUrlFinal = mitoAnterior.documentoUrl;
@@ -433,7 +411,7 @@ formularioRelato.addEventListener("submit", function(evento) {
         }
 
         if (idEditando === null) {
-            const nuevoRegistro = {
+            mitos.push({
                 id: Date.now().toString(),
                 titulo: tituloIngresado,
                 region: regionIngresada,
@@ -443,8 +421,7 @@ formularioRelato.addEventListener("submit", function(evento) {
                 documentoNombre: docNombreFinal || "",
                 documentoUrl: docUrlFinal || "",
                 textoRelato: textoIngresado
-            };
-            mitos.push(nuevoRegistro);
+            });
         } else {
             mitos = mitos.map(function(mito) {
                 if (mito.id === idEditando) {
@@ -462,7 +439,6 @@ formularioRelato.addEventListener("submit", function(evento) {
                 }
                 return mito;
             });
-
             idEditando = null;
             botonGuardarRelato.textContent = "Guardar Registro";
         }
@@ -470,13 +446,10 @@ formularioRelato.addEventListener("submit", function(evento) {
         guardarDatos();
         filtrarYMostrarMitos();
         formularioRelato.reset();
-        
-        // Ocultar botones de quitar archivo tras guardar
         btnQuitarImagen.style.display = "none";
         btnQuitarDocumento.style.display = "none";
     }
 
-    // Lectura de archivos con FileReader de manera sincronizada si existen
     let imagenLeida = null;
     let docNombreLeido = "";
     let docUrlLeido = "";
@@ -504,7 +477,7 @@ formularioRelato.addEventListener("submit", function(evento) {
         docNombreLeido = archivoDocumento.name;
         const lectorDoc = new FileReader();
         lectorDoc.onload = function(e) {
-            docUrlLeido = e.target.result; // Guardamos la URL de datos para poder descargarla
+            docUrlLeido = e.target.result;
             tareasPendientes--;
             chequearFinLectura();
         };
@@ -517,15 +490,12 @@ formularioRelato.addEventListener("submit", function(evento) {
 });
 
 // ==========================================
-// 7. FUNCIONES DE EDICIÓN Y BORRADO
+// 7. EDICIÓN Y BORRADO
 // ==========================================
 
 function prepararEdicion(idMito) {
     limpiarErrores();
-
-    const mitoAEditar = mitos.find(function(mito) {
-        return mito.id === idMito;
-    });
+    const mitoAEditar = mitos.find(m => m.id === idMito);
 
     if (mitoAEditar) {
         document.getElementById("input-titulo").value = mitoAEditar.titulo;
@@ -534,7 +504,6 @@ function prepararEdicion(idMito) {
         document.getElementById("select-categoria").value = mitoAEditar.categoria;
         document.getElementById("textarea-relato").value = mitoAEditar.textoRelato;
         
-        // Limpiamos los inputs file
         inputImagen.value = "";
         inputDocumento.value = "";
         btnQuitarImagen.style.display = "none";
@@ -542,19 +511,13 @@ function prepararEdicion(idMito) {
 
         idEditando = idMito;
         botonGuardarRelato.textContent = "Actualizar Registro";
-
         document.getElementById("seccion-aportar").scrollIntoView({ behavior: 'smooth' });
     }
 }
 
 function borrarMito(idMito) {
-    const confirmacion = confirm("¿Estás seguro de que querés eliminar este registro?");
-
-    if (confirmacion) {
-        mitos = mitos.filter(function(mito) {
-            return mito.id !== idMito;
-        });
-
+    if (confirm("¿Estás seguro de que querés eliminar este registro?")) {
+        mitos = mitos.filter(m => m.id !== idMito);
         if (idEditando === idMito) {
             idEditando = null;
             botonGuardarRelato.textContent = "Guardar Registro";
@@ -563,27 +526,49 @@ function borrarMito(idMito) {
             btnQuitarImagen.style.display = "none";
             btnQuitarDocumento.style.display = "none";
         }
-
         guardarDatos();
         filtrarYMostrarMitos();
     }
 }
 
 // ==========================================
-// 8. INICIALIZACIÓN DE LA APLICACIÓN Y REGISTRO DE SERVICE WORKER
+// 8. INICIALIZACIÓN, SERVICE WORKER Y AVISO DE NUEVA VERSIÓN (Paso 8)
 // ==========================================
 cargarDatos();
 filtrarYMostrarMitos();
 
-// Registro del Service Worker
+// Función que muestra el cartel de nueva versión requerida por la guía
+function mostrarAvisoActualizacion() {
+    const avisoActualiz = document.createElement("div");
+    avisoActualiz.style.backgroundColor = "#1B3B2B";
+    avisoActualiz.style.color = "#FFFFFF";
+    avisoActualiz.style.padding = "0.7rem 1rem";
+    avisoActualiz.style.textAlign = "center";
+    avisoActualiz.style.fontSize = "0.95rem";
+    avisoActualiz.style.fontWeight = "bold";
+    avisoActualiz.style.position = "sticky";
+    avisoActualiz.style.top = "0";
+    avisoActualiz.style.zIndex = "1000";
+    avisoActualiz.style.boxShadow = "0 2px 5px rgba(0,0,0,0.2)";
+    avisoActualiz.textContent = "Hay una versión nueva: cerrá y volvé a abrir la app";
+    
+    document.body.insertBefore(avisoActualiz, document.body.firstChild);
+}
+
+// Registro del Service Worker y detección de actualizaciones
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function() {
-        navigator.serviceWorker.register("./sw.js")
-            .then(function(registro) {
-                console.log("Service Worker registrado correctamente con éxito:", registro.scope);
-            })
-            .catch(function(error) {
-                console.log("Fallo al registrar el Service Worker:", error);
+        navigator.serviceWorker.register("./sw.js").then(function(registro) {
+            registro.addEventListener("updatefound", function() {
+                const nuevoWorker = registro.installing;
+                nuevoWorker.addEventListener("statechange", function() {
+                    if (nuevoWorker.state === "installed" && navigator.serviceWorker.controller) {
+                        mostrarAvisoActualizacion();
+                    }
+                });
             });
+        }).catch(function(error) {
+            console.log("Error al registrar el Service Worker:", error);
+        });
     });
 }
