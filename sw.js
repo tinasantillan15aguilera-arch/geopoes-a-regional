@@ -1,8 +1,8 @@
 /* ==========================================
-   SERVICE WORKER (sw.js) - Recorrido Geopoético (Versión 2)
+   SERVICE WORKER (sw.js) - Recorrido Geopoético (Versión 3)
    ========================================== */
 
-const VERSION = "v2"; // <--- Actualizado a versión 2 como pediste
+const VERSION = "v3"; // <--- Actualizado a versión 3 para forzar el aviso
 const ARCHIVOS = [
     "./",
     "./index.html",
@@ -23,7 +23,7 @@ self.addEventListener("install", (evento) => {
     self.skipWaiting();
 });
 
-// 2. EVENTO ACTIVATE: Borra la caché vieja (la versión anterior)
+// 2. EVENTO ACTIVATE: Borra la caché de la versión vieja (v2 o anterior)
 self.addEventListener("activate", (evento) => {
     evento.waitUntil(
         caches.keys().then((keys) => {
