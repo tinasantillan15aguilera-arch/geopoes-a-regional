@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recorrido Geopoético Regional</title>
+    
+    <!-- Enlaces para la PWA (Paso 3) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1B3B2B">
+    <link rel="apple-touch-icon" href="icono-192.png">
+
+    <!-- Enlace a la hoja de estilos -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Encabezado principal con título, buscador y botones de respaldo -->
+    <header id="encabezado-principal">
+        <h1>Recorrido Geopoético Regional</h1>
+        
+        <div id="controles-superiores">
+            <!-- Buscador general por texto -->
+            <input type="search" id="buscador-general" placeholder="Buscar por título, región o autor...">
+            
+            <!-- Botones para manejar los datos JSON del localStorage -->
+            <button type="button" id="boton-exportar">Exportar</button>
+            <button type="button" id="boton-importar">Importar</button>
+            <!-- Input oculto necesario para leer el archivo al hacer clic en Importar -->
+            <input type="file" id="input-archivo-importar" accept=".json" hidden>
+        </div>
+    </header>
+
+    <!-- Contenedor principal de la aplicación -->
+    <main id="contenido-principal">
+
+        <!-- Sección 1: Exploración, filtros y lectura -->
+        <section id="seccion-explorar">
+            <h2>Explorar Registros</h2>
+
+            <!-- Controles de filtrado -->
+            <div id="controles-filtros">
+                <div>
+                    <label for="filtro-categoria">Filtrar por categoría:</label>
+                    <select id="filtro-categoria">
+                        <option value="todos">Todas las categorías</option>
+                        <option value="Mito">Mito</option>
+                        <option value="Leyenda">Leyenda</option>
+                        <option value="Poema">Poema</option>
+                        <option value="Copla">Copla</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Contenedor vacío donde JavaScript inyectará las tarjetas dinámicamente -->
+            <div id="contenedor-tarjetas"></div>
+        </section>
+
+        <!-- Sección 2: Formulario para cargar nuevos aportes geopoéticos -->
+        <section id="seccion-aportar">
+            <h2>Aportar Obra o Relato</h2>
+
+            <form id="formulario-relato">
+                <div>
+                    <label for="input-titulo">Título de la obra o relato:</label>
+                    <input type="text" id="input-titulo" name="titulo" required placeholder="Ej: Canción del Viento Blanco">
+                </div>
+
+                <div>
+                    <label for="select-region">Región:</label>
+                    <select id="select-region" name="region" required>
+                        <option value="">Seleccioná una región...</option>
+                        <option value="Norte">Norte</option>
+                        <option value="Litoral">Litoral</option>
+                        <option value="Centro">Centro</option>
+                        <option value="Cuyo">Cuyo</option>
+                        <option value="Patagonia">Patagonia</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="input-autor">Autor / Recopilador:</label>
+                    <input type="text" id="input-autor" name="autor" required placeholder="Ej: Juana de los Cerros">
+                </div>
+
+                <div>
+                    <label for="select-categoria">Tipo de registro:</label>
+                    <select id="select-categoria" name="categoria" required>
+                        <option value="">Seleccioná una categoría...</option>
+                        <option value="Mito">Mito</option>
+                        <option value="Leyenda">Leyenda</option>
+                        <option value="Poema">Poema</option>
+                        <option value="Copla">Copla</option>
+                    </select>
+                </div>
+
+                <!-- Input de imagen con su botón para quitar selección -->
+                <div>
+                    <label for="input-imagen">Adjuntar imagen (JPG/PNG):</label>
+                    <input type="file" id="input-imagen" name="imagen" accept="image/*">
+                    <button type="button" id="btn-quitar-imagen" style="display: none; margin-top: 0.4rem; background-color: #718096; padding: 0.3rem 0.6rem; font-size: 0.85rem; width: fit-content;">❌ Quitar imagen</button>
+                </div>
+
+                <!-- Input de documento con su botón para quitar selección -->
+                <div>
+                    <label for="input-documento">Adjuntar documento (PDF o Word):</label>
+                    <input type="file" id="input-documento" name="documento" accept=".pdf,.doc,.docx">
+                    <button type="button" id="btn-quitar-documento" style="display: none; margin-top: 0.4rem; background-color: #718096; padding: 0.3rem 0.6rem; font-size: 0.85rem; width: fit-content;">❌ Quitar documento</button>
+                </div>
+
+                <div>
+                    <label for="textarea-relato">Texto del relato o poema:</label>
+                    <textarea id="textarea-relato" name="relato" rows="6" required placeholder="Escribí acá la obra completa..."></textarea>
+                </div>
+
+                <button type="submit" id="boton-guardar-relato">Guardar Registro</button>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- Enlace al archivo de lógica en JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
