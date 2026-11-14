@@ -156,7 +156,7 @@ function mostrarMitos(listaAMostrar = mitos) {
 }
 
 // ==========================================
-// 5. FUNCIONES AUXILIARES DE VALIDACIÓN VISUAL
+// 5. FUNCIONES AUXILIARES DE VALIDACIÓN VISUAL Y AVISO OFFLINE (Paso 7)
 // ==========================================
 
 function mostrarError(idElemento, mensaje) {
@@ -180,6 +180,35 @@ function limpiarErrores() {
         error.remove();
     });
 }
+
+// --- CREACIÓN E INYECCIÓN DEL AVISO DISCRETO DE CONEXIÓN (Paso 7) ---
+const avisoConexion = document.createElement("div");
+avisoConexion.id = "aviso-conexion";
+avisoConexion.style.backgroundColor = "#D4AC0D";
+avisoConexion.style.color = "#2C221E";
+avisoConexion.style.padding = "0.5rem 1rem";
+avisoConexion.style.textAlign = "center";
+avisoConexion.style.fontSize = "0.9rem";
+avisoConexion.style.fontWeight = "bold";
+avisoConexion.style.display = "none"; // Oculto por defecto
+avisoConexion.textContent = "Sin conexión: tus datos se siguen guardando en este celular";
+
+// Insertar el aviso arriba de todo en el body
+document.body.insertBefore(avisoConexion, document.body.firstChild);
+
+function actualizarEstadoConexión() {
+    if (!navigator.onLine) {
+        avisoConexion.style.display = "block";
+    } else {
+        avisoConexion.style.display = "none";
+    }
+}
+
+window.addEventListener("online", actualizarEstadoConexión);
+window.addEventListener("offline", actualizarEstadoConexión);
+// Comprobar estado inicial al cargar
+actualizarEstadoConexión();
+
 
 // ==========================================
 // 6. MANEJO DE FORMULARIO, ARCHIVOS Y FILTROS
@@ -251,12 +280,32 @@ function filtrarYMostrarMitos() {
 buscadorGeneral.addEventListener("input", filtrarYMostrarMitos);
 filtroCategoria.addEventListener("change", filtrarYMostrarMitos);
 
-// --- EXPORTAR E IMPORTAR DATOS ---
-function exportarDatos() {
+// --- EXPORTAR E IMPORTAR DATOS CON SOPORTE DE NAVIGATOR.SHARE (Paso 7) ---
+async function exportarDatos() {
     const jsonLegible = JSON.stringify(mitos, null, 2);
     const blob = new Blob([jsonLegible], { type: "application/json" });
-    const urlTemporal = URL.createObjectURL(blob);
+    const archivoJson = new File([blob], "recorrido-geopoetico.json", { type: "application/json" });
 
+    // Intentar usar navigator.share si está disponible en el celular (Paso 7)
+    if (navigator.canShare && navigator.canShare({ files: [archivoJson] })) {
+        try {
+            await navigator.share({
+                title: "Recorrido Geopoético - Respaldo JSON",
+                text: "Comparto los datos actuales de la aplicación.",
+                files: [archivoJson]
+            });
+            return; // Salir si se compartió exitosamente
+        } catch (error) {
+            if (error.name !== "AbortError") {
+                console.log("Error al compartir, intentando descarga convencional:", error);
+            } else {
+                return; // Si el usuario canceló el menú de compartir, no hacemos nada más
+            }
+        }
+    }
+
+    // Método de respaldo clásico (descarga directa)
+    const urlTemporal = URL.createObjectURL(blob);
     const enlaceDescarga = document.createElement("a");
     enlaceDescarga.href = urlTemporal;
     enlaceDescarga.download = "recorrido-geopoetico.json";
@@ -362,7 +411,7 @@ formularioRelato.addEventListener("submit", function(evento) {
     }
 
     /**
-     * Función que procesa el guardado final una vez leídos los archivos que haya adjuntado el usuario.
+     * Funktion que procesa el guardado final una vez leídos los archivos que haya adjuntado el usuario.
      */
     function guardarRegistroFinal(imagenBase64, docNombre, docUrl) {
         let imagenFinal = imagenBase64;
@@ -521,7 +570,7 @@ function borrarMito(idMito) {
 }
 
 // ==========================================
-// 8. INICIALIZACIÓN DE LA APLICACIÓN Y REGISTRO DE SERVICE WORKER (Paso 4)
+// 8. INICIALIZACIÓN DE LA APLICACIÓN Y REGISTRO DE SERVICE WORKER
 // ==========================================
 cargarDatos();
 filtrarYMostrarMitos();
